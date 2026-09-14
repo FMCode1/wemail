@@ -75,11 +75,23 @@ export default function SendPage() {
         body: formData,
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
 
+      let data: { error?: string; success?: boolean; message?: string };
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        console.error("SEND EMAIL NON-JSON RESPONSE:", responseText);
+      
+        throw new Error(
+          `Server returned ${response.status}: ${responseText.slice(0, 300)}`
+        );
+      }
+      
       if (!response.ok) {
         throw new Error(data.error || "Failed to send email");
-      }
+      }      
 
       setMessage("Email sent successfully!");
       setTo("");
